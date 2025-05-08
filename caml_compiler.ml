@@ -40,6 +40,8 @@ and value =
 | Int of int
 | Bool of bool
 | NullValue
+| Pair of value * value
+| Closure of coms * value
 
 and operator = Add | Sub | Mult
 
@@ -49,7 +51,8 @@ let rec compile (e: expr) (env : (ident * value) list) : coms =
   | Number n -> [Quote (Int n)]                          (* 2 *)
   | True -> [Quote (Bool true)]                          (* 3 *)
   | False -> [Quote (Bool false)]                        (* 4 *)
-  | Ident i ->                                           (* 5 *) (* à verif *)
+  | Ident i ->                                           (* 5 *) 
+  
       let value = List.assoc i env in 
       [Quote(value)]
 
@@ -64,7 +67,7 @@ let rec compile (e: expr) (env : (ident * value) list) : coms =
       let c2 = compile e2 env in
       [Push] @ c1 @ [Swap] @ c2 @ [Cons]
 
-  | Let (p, e1, e2) ->                                   (* 8 *)
+  | Let (p, e1, e2) ->                                   (* 8 *) (* à verif *)
       let c1 = compile e1 env in
       let new_env = match p with
         | IdentPat(x) -> (x, NullValue) :: env
@@ -73,7 +76,7 @@ let rec compile (e: expr) (env : (ident * value) list) : coms =
       let c2 = compile e2 new_env in
       Push :: c1 @ [Cons] @ c2
 
-  | LetRec (p, e1, e2) ->                                (* 9 *)
+  | LetRec (p, e1, e2) ->                                (* 9 *) (* à verif *)
       let new_env = match p with
         | IdentPat(x) -> (x, NullValue) :: env
         | _ -> env
