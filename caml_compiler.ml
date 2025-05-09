@@ -51,8 +51,7 @@ let rec compile (e: expr) (env : (ident * value) list) : coms =
   | Number n -> [Quote (Int n)]                          (* 2 *)
   | True -> [Quote (Bool true)]                          (* 3 *)
   | False -> [Quote (Bool false)]                        (* 4 *)
-  | Ident i ->                                           (* 5 *) 
-  
+  | Ident i ->                                           (* 5 *) (* à verif *)
       let value = List.assoc i env in 
       [Quote(value)]
 
@@ -62,10 +61,11 @@ let rec compile (e: expr) (env : (ident * value) list) : coms =
       let c3 = compile e3 env in
       Push :: c1 @ [Branch (c2, c3)]
 
-  | Mlpair (e1, e2) ->                                   (* 7 *)
+  | Mlpair (e1, e2) ->                                   (* 7 *) (* à verif *)
       let c1 = compile e1 env in
       let c2 = compile e2 env in
-      [Push] @ c1 @ [Swap] @ c2 @ [Cons]
+      (* Push :: c1 @ [Swap] @ c2 @ [Cons] *)
+      Push :: c2 @ c1 @ [Swap; Cons]
 
   | Let (p, e1, e2) ->                                   (* 8 *) (* à verif *)
       let c1 = compile e1 env in
@@ -95,12 +95,11 @@ let rec compile (e: expr) (env : (ident * value) list) : coms =
 
   | Apply (e1, e2) ->                                   (* 12 *)
       match e1 with
-      | Ident("add") -> compile e2 env @[Op(Add)]
-      | Ident("sub") -> compile e2 env @[Op(Sub)]
-      | Ident("mult") -> compile e2 env @[Op(Mult)]
+      | Ident("add") -> compile e2 env @  [Push; Car; Swap; Cdr; Op(Add)]
+      | Ident("sub") -> compile e2 env @  [Push; Car; Swap; Cdr; Op(Sub)]
+      | Ident("mult") -> compile e2 env @  [Push; Car; Swap; Cdr; Op(Mult)]
       | _ -> 
           let c1= compile e1 env in 
           let c2= compile e2 env in 
           Push :: c1 @ [Swap] @ c2 @ [Cons;App]
-
   

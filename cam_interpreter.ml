@@ -1,4 +1,5 @@
 open Caml_compiler
+open Cam_printer
 
 type stack = value list
 
@@ -19,8 +20,11 @@ let rec eval_coms (code : coms) (stack : stack) : stack =
     | Cons, v1 :: v2 :: stack' ->                     (* 9 *)
         eval_coms rest (Pair (v2, v1) :: stack')
 
-    | Push, s ->                                      (* 10 *) (* à verif *)
-        eval_coms rest (NullValue :: s)
+    | Push, v :: stack' ->                            (* 10 *)
+        eval_coms rest (v :: v :: stack')
+
+    | Push, [] ->                                     (* 10 *) (* à verif *)
+        eval_coms rest []
 
     | Swap, v1 :: v2 :: stack' ->                     (* 11 *)
         eval_coms rest (v2 :: v1 :: stack')
@@ -34,10 +38,10 @@ let rec eval_coms (code : coms) (stack : stack) : stack =
     | Op Mult, Int n1 :: Int n2 :: stack' ->          (* 12 *)
         eval_coms rest (Int (n2 * n1) :: stack')
 
-    | Branch (c1, c2), Bool true :: stack' ->         (* 13 *)
+    | Branch (c1, _), Bool true :: stack' ->         (* 13 *)
         eval_coms (c1 @ rest) stack'
 
-    | Branch (c1, c2), Bool false :: stack' ->        (* 14 *)
+    | Branch (_, c2), Bool false :: stack' ->        (* 14 *)
         eval_coms (c2 @ rest) stack'
 
     | Cur c, v :: stack' ->                           (* 15 *)
@@ -50,5 +54,16 @@ let rec eval_coms (code : coms) (stack : stack) : stack =
     | Rplac, v :: Closure (c, _) :: stack' ->         (* 17 *) (* à verif *)
         eval_coms rest (Closure (c, v) :: stack')
 
-    | _ ->
-        failwith "Invalid"
+    | instr, stack ->
+        let msg = Printf.sprintf
+          "Invalid instruction or stack.\nInstruction: %s\nStack: %s"
+          (print_com instr)
+          (String.concat " ; " (List.map print_value stack))
+        in
+        failwith msg
+
+
+let eval (code : coms) : value =
+  match eval_coms code [] with
+  | v :: _ -> v
+  | [] -> failwith "Empty stack at end of execution"
