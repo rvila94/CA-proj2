@@ -1,3 +1,3 @@
 (executable
  (name cam_test)
- (modules caml_compiler cam_interpreter cam_test))
+ (modules caml_compiler cam_printer cam_interpreter cam_test))
