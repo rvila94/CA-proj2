@@ -8,8 +8,11 @@ let rec eval_coms (code : coms) (stack : stack) : stack =
   | [] -> stack
   | instr :: rest ->
     match instr, stack with
-    | Quote v, _ ->                                   (* 4?, 5, 6 *) (* à verif pour le 4 *)
-        eval_coms rest (v :: stack)
+    | Quote v, _ :: stack' ->                         (* 4?, 5, 6 *) (* à verif pour le 4 *)
+        eval_coms rest (v :: stack')
+
+    | Quote v, [] ->                                  (* 4, 5, 6 *) (* à verif pour le 4 *)
+        eval_coms rest [v]
 
     | Car, Pair (v1, _) :: stack' ->                  (* 7 *)
         eval_coms rest (v1 :: stack')
@@ -24,18 +27,18 @@ let rec eval_coms (code : coms) (stack : stack) : stack =
         eval_coms rest (v :: v :: stack')
 
     | Push, [] ->                                     (* 10 *) (* à verif *)
-        eval_coms rest []
+        eval_coms rest (NullValue :: [NullValue])
 
     | Swap, v1 :: v2 :: stack' ->                     (* 11 *)
         eval_coms rest (v2 :: v1 :: stack')
 
-    | Op Add, Int n1 :: Int n2 :: stack' ->           (* 12 *)
+    | Op Add, Pair (Int n1, Int n2) :: stack' ->      (* 12 *)
         eval_coms rest (Int (n2 + n1) :: stack')
 
-    | Op Sub, Int n1 :: Int n2 :: stack' ->           (* 12 *)
+    | Op Sub, Pair (Int n1, Int n2) :: stack' ->      (* 12 *)
         eval_coms rest (Int (n2 - n1) :: stack')
 
-    | Op Mult, Int n1 :: Int n2 :: stack' ->          (* 12 *)
+    | Op Mult, Pair (Int n1, Int n2) :: stack' ->     (* 12 *)
         eval_coms rest (Int (n2 * n1) :: stack')
 
     | Branch (c1, _), Bool true :: stack' ->         (* 13 *)
