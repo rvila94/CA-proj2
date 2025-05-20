@@ -15,6 +15,7 @@ let print_op = function
   | Add -> "add"
   | Sub -> "sub"
   | Mult -> "mult"
+  | Eq -> "eq"
 
 let print_com = function
   | Quote v -> "Quote(" ^ print_value v ^ ")"

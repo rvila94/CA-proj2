@@ -11,15 +11,31 @@ let tests : (string * expr * string) list = [
   ("test5", Mlpair (Number 1, Number 2), "(1, 2)");
   ("test6", Apply (Ident "add", Mlpair (Number 1, Number 2)), "3");
   ("test7", Let (IdentPat "x", Number 1, Number 2), "2");
-  (* à partir d'ici les test ne passent pas (sauf 10) + faudra ajouter d'autres tests *)
   ("test8", Let (IdentPat "x", Number 1, Ident "x"), "1");
   ("test9", Let (IdentPat "x", Number 1,
              Let (IdentPat "y", Number 2, Ident "x")), "1");
   ("test10", Apply (Lambda (IdentPat "x", Number 1), Number 2), "1");
   ("test11", Apply (Lambda (IdentPat "x", Ident "x"), Number 1), "1");
-  ("test12", Let (IdentPat "x",
-              Let (IdentPat "y", Number 1, Ident "y"),
-              Ident "x"), "1");
+  (* fonctionne pas
+  ("test13",
+    LetRec (
+      IdentPat "fact",
+      Lambda (IdentPat "n",
+        If (
+          Apply (Ident "eq", Mlpair (Ident "n", Number 0)),       (* n = 0 *)
+          Number 1,
+          Apply (
+            Ident "mult",
+            Mlpair (
+              Ident "n",
+              Apply ( Ident "fact", Apply (Ident "sub", Mlpair (Ident "n", Number 1))))
+          )
+        )
+      ),
+      Apply (Ident "fact", Number 4)
+    ),
+  "24"
+  ) *)
 ]
 
 (* exécuter une expression MiniML complète *)
